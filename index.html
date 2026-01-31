@@ -1,117 +1,419 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Smart-Paw — Pet Identification</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="styles.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart-Paw MarSU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #800024;
+            /* MarSU Maroon */
+            --primary-soft: #a8284a;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 100px;
+            /* Space for the big navbar */
+            overflow-x: hidden;
+        }
+
+        /* Header Design */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-soft));
+            color: white;
+            padding: 30px 20px 40px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 30px -10px rgba(128, 0, 36, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '\F426';
+            /* Bootstrap Paw Icon */
+            font-family: 'bootstrap-icons';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 150px;
+            opacity: 0.1;
+            transform: rotate(20deg);
+        }
+
+        /* Modern Card Styling */
+        .smart-card {
+            background: white;
+            border-radius: 25px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            overflow: hidden;
+        }
+
+        .smart-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Modern Bottom Navbar (The Star of the Show) */
+        .modern-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            height: 80px;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            color: #ccc;
+            font-size: 1.8rem;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        /* The Big Round Scan Button */
+        .scan-fab-container {
+            position: relative;
+            top: -35px;
+        }
+
+        .scan-fab {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-soft));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2.2rem;
+            box-shadow: 0 10px 25px rgba(128, 0, 36, 0.4);
+            border: 5px solid var(--bg-light);
+            transition: 0.3s;
+        }
+
+        .scan-fab:active {
+            transform: scale(0.9);
+            box-shadow: 0 5px 15px rgba(128, 0, 36, 0.3);
+        }
+
+        .scan-fab i {
+            animation: pulse 2s infinite;
+        }
+
+        /* Camera UI */
+        .camera-frame {
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            background: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>');
+            opacity: 0.3;
+        }
+
+        /* Animations & Transitions */
+        .view-section {
+            display: none;
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .paw-bullet {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        /* Buttons */
+        .btn-primary-maroon {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px -5px rgba(128, 0, 36, 0.5);
+        }
+
+        .btn-primary-maroon:active {
+            transform: scale(0.98);
+            background: var(--primary-soft);
+        }
+    </style>
 </head>
-<body class="bg-white text-dark">
-  <div id="app" class="d-flex flex-column vh-100">
-    <main class="flex-grow-1 overflow-auto">
-      <div class="container py-4">
 
-        <!-- Home -->
-        <section id="homeView">
-          <h1 class="h4 fw-bold">Smart-Paw</h1>
-          <p class="lead">Pet Identification System — Santa Cruz, Marinduque</p>
+<body>
 
-          <div class="card mb-3">
-            <div class="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <h6 class="mb-0">Total Registered Pets</h6>
-                <small class="text-muted">From localStorage</small>
-              </div>
-              <div>
-                <span id="petCount" class="display-6">0</span>
-              </div>
+    <div class="main-header text-center">
+        <img src="https://survey.marsu.edu.ph/img/marsu-logo.png" width="50"
+            style="border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); margin-bottom: 10px;">
+        <h4 class="fw-bold mb-0">Smart-Paw Ecosystem</h4>
+        <small style="opacity: 0.8;">Municipality of Santa Cruz, Marinduque</small>
+    </div>
+
+    <div class="container py-4">
+
+        <div id="home" class="view-section active">
+            <div class="smart-card p-4 mb-4 d-flex align-items-center justify-content-between bg-white">
+                <div>
+                    <h6 class="text-muted mb-1">Total Registered Pets</h6>
+                    <h1 class="fw-bold text-dark mb-0" style="color: var(--primary) !important;" id="totalCount">0</h1>
+                </div>
+                <i class="bi bi-database-fill-check" style="font-size: 3rem; color: var(--primary); opacity: 0.2;"></i>
             </div>
-          </div>
 
-          <div id="recent" class="mt-3"></div>
-        </section>
-
-        <!-- Scan -->
-        <section id="scanView" class="d-none">
-          <h2 class="h5">Scan</h2>
-          <div class="card mt-3">
-            <div class="card-body">
-              <div id="videoWrapper" class="ratio ratio-4x3 bg-black rounded overflow-hidden">
-                <video id="video" autoplay playsinline></video>
-              </div>
-
-              <div class="mt-3 d-flex gap-2">
-                <button id="btnStartCamera" class="btn btn-outline-dark">Start Camera</button>
-                <button id="btnStopCamera" class="btn btn-outline-secondary d-none">Stop</button>
-                <button id="btnSimulate" class="btn btn-maroon ms-auto">Simulate Recognition</button>
-              </div>
-
-              <div id="scanResult" class="mt-3"></div>
+            <h6 class="fw-bold ps-2 mb-3 text-muted">RECENT REGISTRATIONS</h6>
+            <div id="recentList">
             </div>
-          </div>
-        </section>
+        </div>
 
-        <!-- Register -->
-        <section id="registerView" class="d-none">
-          <h2 class="h5">Register Pet</h2>
-          <div class="card mt-3">
-            <div class="card-body">
-              <form id="registerForm">
-                <div class="mb-3">
-                  <label class="form-label">Pet Name</label>
-                  <input id="petName" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Breed</label>
-                  <input id="petBreed" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Owner Name</label>
-                  <input id="ownerName" class="form-control" required>
-                </div>
+        <div id="scan" class="view-section text-center pt-2">
+            <h5 class="fw-bold mb-3">AI Multi-Modal Scan</h5>
+            <p class="text-muted small mb-4">Point camera at the pet's face or QR code.</p>
 
-                <div class="mb-3">
-                  <label class="form-label">Photo</label>
-                  <div class="d-flex gap-2 align-items-center">
-                    <button id="btnOpenCamRegister" type="button" class="btn btn-outline-dark">Capture Photo</button>
-                    <img id="photoPreview" src="" alt="" class="ms-2 rounded" style="height:64px;display:none">
-                  </div>
-                </div>
-
-                <input type="hidden" id="photoData" />
-                <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-maroon">Save</button>
-                </div>
-              </form>
+            <div class="camera-frame mb-4" style="aspect-ratio: 1/1;">
+                <video id="scanVideo" autoplay playsinline></video>
+                <div class="scan-overlay"></div>
             </div>
-          </div>
-        </section>
 
-      </div>
-    </main>
+            <div id="scanResult" class="smart-card p-4 text-start" style="display: none; background: #fff5f7;">
+            </div>
+            <p class="text-muted small mt-3" id="scanDefaultMsg"><i class="bi bi-info-circle me-1"></i> Tap the center
+                button to simulate AI detection.</p>
+        </div>
 
-    <!-- Bottom Navbar -->
-    <nav class="navbar fixed-bottom navbar-light bg-white border-top">
-      <div class="container d-flex justify-content-around py-2">
-        <button class="nav-btn text-center" data-target="homeView" id="navHome">
-          <div class="nav-icon">🏠</div>
-          <div class="nav-label">Home</div>
-        </button>
-        <button class="nav-btn text-center" data-target="scanView" id="navScan">
-          <div class="nav-icon">📷</div>
-          <div class="nav-label">Scan</div>
-        </button>
-        <button class="nav-btn text-center" data-target="registerView" id="navRegister">
-          <div class="nav-icon">➕</div>
-          <div class="nav-label">Register</div>
-        </button>
-      </div>
-    </nav>
+        <div id="register" class="view-section">
+            <h5 class="fw-bold mb-3 text-center">New Pet Profile</h5>
+            <div class="smart-card p-4">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control fw-bold" id="pName" placeholder="Pet Name">
+                    <label for="pName">Pet's Name</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="text" class="form-control" id="pOwner" placeholder="Owner Name">
+                    <label for="pOwner">Owner's Name</label>
+                </div>
 
-    <canvas id="captureCanvas" style="display:none"></canvas>
-  </div>
+                <p class="small fw-bold mb-2"><i class="bi bi-camera-fill me-1 text-muted"></i> Capture AI Training
+                    Photo</p>
+                <div class="camera-frame mb-3" style="height: 200px;">
+                    <video id="regVideo" autoplay playsinline></video>
+                </div>
+                <button class="btn btn-light w-100 py-3 mb-3 text-primary fw-bold" onclick="capturePhoto()"
+                    style="border: 2px dashed var(--primary-soft); border-radius: 15px;">
+                    <i class="bi bi-camera"></i> Snap Photo
+                </button>
 
-  <script src="app.js"></script>
+                <button class="btn btn-primary-maroon w-100 py-3" onclick="saveToLocal()">
+                    Create Pet Profile
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modern-navbar">
+        <div class="nav-btn active" onclick="switchView('home', this)">
+            <i class="bi bi-grid-fill"></i>
+        </div>
+
+        <div class="scan-fab-container" onclick="handleCenterClick()">
+            <div class="scan-fab">
+                <i class="bi bi-qr-code-scan"></i>
+            </div>
+        </div>
+
+        <div class="nav-btn" onclick="switchView('register', this)">
+            <i class="bi bi-plus-square-fill"></i>
+        </div>
+    </div>
+
+
+    <script>
+        let stream = null;
+        let lastPhoto = null;
+        let currentView = 'home';
+
+        // Handle the center button click based on context
+        function handleCenterClick() {
+            if (currentView === 'scan') {
+                simulateAI();
+            } else {
+                // If not on scan page, go to scan page
+                const scanBtn = document.querySelectorAll('.nav-btn')[1]; // Dummy selector
+                switchView('scan', scanBtn);
+            }
+        }
+
+        function switchView(id, el) {
+            currentView = id;
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+
+            // Highlight correct nav items (skip center FAB)
+            if (id === 'home') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            if (id === 'register') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+
+            stopCam();
+            if (id === 'scan' || id === 'register') initCam(id === 'scan' ? 'scanVideo' : 'regVideo');
+            if (id === 'home') loadHome();
+        }
+
+        async function initCam(vidId) {
+            const video = document.getElementById(vidId);
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+            } catch (err) { alert("Please allow camera access."); }
+        }
+
+        function stopCam() { if (stream) stream.getTracks().forEach(t => t.stop()); }
+
+        function capturePhoto() {
+            const video = document.getElementById('regVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = 300; canvas.height = 300; // Process smaller image for prototype
+            canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
+            lastPhoto = canvas.toDataURL('image/jpeg', 0.8);
+            alert("Photo captured for AI Model!");
+        }
+
+        function saveToLocal() {
+            const name = document.getElementById('pName').value;
+            const owner = document.getElementById('pOwner').value;
+            if (!name || !owner || !lastPhoto) return alert("Please fill all fields and capture a photo.");
+
+            const pet = { name, owner, photo: lastPhoto, date: new Date().toLocaleDateString(), id: 'PET-' + Date.now().toString().slice(-6) };
+            let data = JSON.parse(localStorage.getItem('smartPawDB_v2')) || [];
+            data.push(pet);
+            localStorage.setItem('smartPawDB_v2', JSON.stringify(data));
+
+            alert("Pet registered to Ecosystem!");
+            switchView('home');
+        }
+
+        function loadHome() {
+            const data = JSON.parse(localStorage.getItem('smartPawDB_v2')) || [];
+            document.getElementById('totalCount').innerText = data.length;
+            const list = document.getElementById('recentList');
+            list.innerHTML = "";
+            if (data.length === 0) {
+                list.innerHTML = '<p class="text-center text-muted my-5">No pets registered yet.</p>'; return;
+            }
+            data.slice(-5).reverse().forEach(p => {
+                list.innerHTML += `
+                    <div class="smart-card p-3 mb-3 d-flex align-items-center">
+                        <img src="${p.photo}" style="width:60px; height:60px; border-radius:20px; object-fit:cover; margin-right:15px; border: 2px solid var(--primary-soft);">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">${p.name}</h6>
+                            <small class="text-muted"><i class="bi bi-person-fill me-1"></i>${p.owner}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success mb-1" style="font-weight:normal;">Active</span><br>
+                            <small class="text-muted" style="font-size:0.7rem;">${p.id}</small>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function simulateAI() {
+            const data = JSON.parse(localStorage.getItem('smartPawDB_v2')) || [];
+            const result = document.getElementById('scanResult');
+            const msg = document.getElementById('scanDefaultMsg');
+
+            if (data.length === 0) return alert("Database empty. Register a pet first.");
+
+            msg.innerHTML = '<div class="spinner-border spinner-border-sm text-danger" role="status"></div> Analyzing biometric data...';
+            result.style.display = "none";
+
+            setTimeout(() => {
+                msg.style.display = "none";
+                const match = data[data.length - 1]; // Simulate finding the latest
+                result.innerHTML = `
+                    <div class="d-flex align-items-center position-relative">
+                        <i class="bi bi-patch-check-fill position-absolute top-0 start-0 text-success" style="font-size:1.5rem; transform: translate(-10px, -10px);"></i>
+                        <img src="${match.photo}" style="width:80px; height:80px; border-radius:20px; object-fit:cover; margin-right:15px; border: 3px solid #198754;">
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">${match.name}</h5>
+                            <p class="mb-0 small text-muted"><i class="bi bi-person-badge me-1"></i>Owner: <strong>${match.owner}</strong></p>
+                            <small class="text-uppercase" style="color: var(--primary); font-weight:700; font-size:0.7rem;">ID: ${match.id}</small>
+                        </div>
+                    </div>`;
+                result.style.display = "block";
+                // Auto hide result after 5s so they can scan again
+                setTimeout(() => { result.style.display = "none"; msg.style.display = "block"; msg.innerHTML = '<i class="bi bi-info-circle me-1"></i> Tap center button to scan again.'; }, 5000);
+            }, 2000);
+        }
+
+        window.onload = function () { loadHome(); };
+    </script>
 </body>
+
 </html>
