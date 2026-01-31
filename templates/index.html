@@ -4,82 +4,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart-Paw MarSU</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Smart-Paw AI | MarSU</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
     <style>
+        /* --- PRO THEME VARIABLES --- */
         :root {
-            --primary: #800024;
-            --bg-light: #f4f7f6;
-            --text-dark: #2c3e50;
+            --primary-dark: #880E4F;
+            /* Deep Professional Maroon */
+            --primary-light: #C2185B;
+            /* Lighter Maroon for Gradients */
+            --accent: #FFC107;
+            /* Gold/Amber for actions */
+            --text-main: #2D3436;
+            --text-sub: #636E72;
+            --bg-body: #F4F6F8;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.90);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-            padding-bottom: 100px;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding-bottom: 120px;
+            /* Space for floating nav */
             overflow-x: hidden;
         }
 
-        /* Header */
-        .main-header {
-            background: linear-gradient(135deg, var(--primary), #a8284a);
+        /* --- 1. MODERN HEADER (With Logo Area) --- */
+        .app-header {
+            background: linear-gradient(160deg, var(--primary-dark), var(--primary-light));
             color: white;
-            padding: 25px 20px 35px;
-            border-radius: 0 0 30px 30px;
+            padding: 20px 25px 50px;
+            /* Extra bottom padding for overlap */
+            border-radius: 0 0 40px 40px;
             position: relative;
+            box-shadow: 0 10px 30px rgba(136, 14, 79, 0.25);
+            margin-bottom: -30px;
+            /* Pull content up */
+            z-index: 10;
         }
 
-        /* Navbar */
-        .modern-navbar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-placeholder {
+            width: 45px;
+            height: 45px;
             background: white;
-            height: 80px;
-            border-radius: 30px 30px 0 0;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text h4 {
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+            font-size: 1.2rem;
+        }
+
+        .logo-text small {
+            opacity: 0.8;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+        }
+
+        /* --- 2. FLOATING GLASS NAVBAR --- */
+        .glass-nav {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
+            height: 75px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: var(--glass-border);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-around;
             align-items: center;
             z-index: 1000;
-            padding: 0 20px;
+            padding: 0 10px;
         }
 
-        .nav-btn {
-            color: #ccc;
-            font-size: 1.8rem;
+        .nav-item {
+            text-align: center;
+            color: #B2BEC3;
+            transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+            width: 60px;
+        }
+
+        .nav-item i {
+            font-size: 1.4rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .nav-item span {
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: block;
+            opacity: 0;
+            transform: translateY(10px);
             transition: 0.3s;
         }
 
-        .nav-btn.active {
-            color: var(--primary);
+        .nav-item.active {
+            color: var(--primary-dark);
             transform: translateY(-5px);
         }
 
-        .scan-fab-container {
+        .nav-item.active span {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* CENTER SCAN BUTTON */
+        .scan-btn-wrapper {
             position: relative;
             top: -35px;
         }
 
-        .scan-fab {
-            width: 75px;
-            height: 75px;
-            background: var(--primary);
+        .scan-btn {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary-dark), #D81B60);
             border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             color: white;
-            font-size: 2.2rem;
-            border: 5px solid var(--bg-light);
-            box-shadow: 0 10px 25px rgba(128, 0, 36, 0.4);
+            font-size: 1.8rem;
+            border: 6px solid var(--bg-body);
+            box-shadow: 0 10px 25px rgba(136, 14, 79, 0.4);
+            transition: 0.2s;
+            cursor: pointer;
         }
 
-        /* Camera & Views */
+        .scan-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Pulse Animation */
+        .scan-pulse {
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(136, 14, 79, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(136, 14, 79, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(136, 14, 79, 0);
+            }
+        }
+
+        /* --- 3. CARDS & UI ELEMENTS --- */
         .view-section {
             display: none;
+            padding: 0 5px;
             animation: fadeIn 0.4s ease;
         }
 
@@ -90,7 +213,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(15px);
             }
 
             to {
@@ -99,282 +222,532 @@
             }
         }
 
-        .camera-frame {
-            border-radius: 25px;
-            overflow: hidden;
-            position: relative;
-            border: 4px solid white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            background: #000;
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            margin-top: 10px;
         }
 
-        video {
-            width: 100%;
-            height: 100%;
+        .pet-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+        }
+
+        .pet-card:active {
+            transform: scale(0.98);
+        }
+
+        .pet-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
             object-fit: cover;
+            margin-right: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control-custom {
+            background: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            font-size: 0.9rem;
+        }
+
+        .form-control-custom:focus {
+            outline: 2px solid var(--primary-light);
+            background: #fff;
+        }
+
+        /* CAMERA FRAME */
+        .camera-container {
+            position: relative;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            background: black;
+            border: 4px solid white;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            bottom: 20px;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            pointer-events: none;
         }
 
         .scan-line {
             position: absolute;
             top: 0;
+            left: 0;
             width: 100%;
             height: 3px;
-            background: #00ff00;
-            box-shadow: 0 0 15px #0f0;
+            background: #00FF88;
+            box-shadow: 0 0 15px #00FF88;
             animation: scanMove 2s infinite linear;
-            display: none;
         }
 
         @keyframes scanMove {
             0% {
-                top: 0;
+                top: 0
+            }
+
+            50% {
+                top: 100%
             }
 
             100% {
-                top: 100%;
+                top: 0
             }
         }
 
-        /* Comparison Styles */
-        .img-compare {
+        /* RESULT CARD */
+        .result-img {
             width: 100%;
-            height: 120px;
+            height: 140px;
             object-fit: cover;
             border-radius: 15px;
-            border: 2px solid #ddd;
+            border: 3px solid #eee;
         }
 
-        .match-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        /* --- LOGO INTERACTIVITY STYLES --- */
+
+        /* Container ng logo para sa tamang alignment */
+        .interactive-logo-container {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            /* Slight glass behind logo */
+            border-radius: 14px;
+            padding: 5px;
+            cursor: pointer;
+            /* Mukhang clickable */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            /* Important for scan effect */
+            position: relative;
+        }
+
+        /* Hover Effect: Pag tinapatan ng mouse, aangat at iilaw */
+        .interactive-logo-container:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+            /* Gold glow */
+        }
+
+        /* Ang SVG mismo */
+        .smart-paw-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Kulay ng Paw Pads (Maroon) */
+        .paw-pad {
+            fill: var(--primary-light);
+            transition: 0.3s;
+        }
+
+        .interactive-logo-container:hover .paw-pad {
+            fill: white;
+            /* Magiging puti pag hinover para mag-pop */
+        }
+
+        /* Kulay ng Circuit Lines/Dots (Gold) */
+        .circuit-dot {
+            fill: var(--accent);
+            animation: pulse-dot 2s infinite;
+        }
+
+        /* Animation ng mga tuldok */
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        /* SCANNING EFFECT LINE */
+        .logo-scan-line {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            /* Start sa labas */
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.8), transparent);
+            /* Gold scan beam */
+            transform: skewX(-20deg);
+            animation: logo-scan 4s infinite ease-in-out;
+            /* Mabagal na scan */
+        }
+
+        @keyframes logo-scan {
+            0% {
+                left: -100%;
+            }
+
+            50%,
+            100% {
+                left: 200%;
+            }
+
+            /* Lilipat sa kabila, tapos maghihintay */
         }
     </style>
 </head>
 
 <body>
 
-    <div class="main-header text-center">
-        <h4 class="fw-bold mb-0">Smart-Paw</h4>
-        <small>Santa Cruz, Marinduque</small>
-        <div style="position: absolute; top: 20px; right: 20px;" onclick="clearData()">
-            <i class="bi bi-trash3-fill text-white"></i>
-        </div>
-    </div>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo-area" onclick="switchView('home', document.querySelectorAll('.nav-item')[0])">
 
-    <div class="container py-4">
+                <div class="interactive-logo-container">
+
+                    <div class="logo-scan-line"></div>
+
+                    <svg class="smart-paw-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path class="paw-pad"
+                            d="M50,55 C65,55 75,65 75,80 C75,90 65,98 50,98 C35,98 25,90 25,80 C25,65 35,55 50,55 Z" />
+
+                        <ellipse class="paw-pad" cx="25" cy="35" rx="10" ry="15" transform="rotate(-20 25 35)" />
+                        <ellipse class="paw-pad" cx="42" cy="25" rx="10" ry="15" transform="rotate(-10 42 25)" />
+                        <ellipse class="paw-pad" cx="58" cy="25" rx="10" ry="15" transform="rotate(10 58 25)" />
+                        <ellipse class="paw-pad" cx="75" cy="35" rx="10" ry="15" transform="rotate(20 75 35)" />
+
+                        <g class="circuits">
+                            <line x1="42" y1="25" x2="50" y2="55" stroke="var(--accent)" stroke-width="2"
+                                opacity="0.6" />
+                            <line x1="58" y1="25" x2="50" y2="55" stroke="var(--accent)" stroke-width="2"
+                                opacity="0.6" />
+                            <line x1="50" y1="55" x2="50" y2="75" stroke="var(--accent)" stroke-width="2"
+                                opacity="0.6" />
+
+                            <circle class="circuit-dot" cx="42" cy="25" r="3" />
+                            <circle class="circuit-dot" cx="58" cy="25" r="3" />
+                            <circle class="circuit-dot" cx="50" cy="55" r="4" />
+                            <circle class="circuit-dot" cx="50" cy="75" r="3" />
+                        </g>
+                    </svg>
+                </div>
+                <div class="logo-text ms-3">
+                    <h4 class="mb-0 text-white">Smart-Paw</h4>
+                    <small style="color: var(--accent); letter-spacing: 1px;">AI SCANNER</small>
+                </div>
+            </div>
+            <div class="profile-icon">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: -20px; position: relative; z-index: 20;">
 
         <div id="home" class="view-section active">
-            <div class="card border-0 shadow-sm p-4 text-center mb-3" style="border-radius:20px;">
-                <h1 class="fw-bold text-primary mb-0" id="totalCount">0</h1>
-                <small class="text-muted">Registered Pets</small>
-            </div>
-            <h6 class="fw-bold text-muted ps-2">DATABASE</h6>
-            <div id="recentList"></div>
-        </div>
-
-        <div id="scan" class="view-section text-center pt-2">
-
-            <div id="cameraInterface">
-                <h5 class="fw-bold">AI Scan</h5>
-                <p class="small text-muted mb-3">Align pet face within frame</p>
-                <div class="camera-frame mb-4" style="aspect-ratio: 1/1;">
-                    <video id="scanVideo" autoplay playsinline></video>
-                    <div class="scan-line" id="scanLine"></div>
+            <div class="stats-card">
+                <div>
+                    <small class="text-muted fw-bold">TOTAL REGISTERED</small>
+                    <h2 class="fw-bold mb-0 text-dark" id="countBadge">0</h2>
                 </div>
-                <p class="text-muted small" id="scanMsg">Tap Center Button to Identify</p>
-            </div>
-
-            <div id="resultInterface" style="display: none;">
-                <div class="match-card">
-                    <div class="alert alert-success py-1 px-2 d-inline-block rounded-pill mb-3">
-                        <small><i class="bi bi-patch-check-fill me-1"></i> 94% Match Found</small>
-                    </div>
-
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <img id="scannedImg" src="" class="img-compare" style="border-color: #ff9999;">
-                            <small class="text-muted fw-bold" style="font-size: 0.7rem;">LIVE SCAN</small>
-                        </div>
-                        <div class="col-6">
-                            <img id="dbImg" src="" class="img-compare" style="border-color: #99ff99;">
-                            <small class="text-muted fw-bold" style="font-size: 0.7rem;">DATABASE</small>
-                        </div>
-                    </div>
-
-                    <h4 class="fw-bold mb-0" id="resName">Bantay</h4>
-                    <p class="text-muted mb-3" id="resOwner">Owner: Juan</p>
-
-                    <button class="btn btn-primary w-100 rounded-pill py-2" onclick="resetScan()">
-                        <i class="bi bi-qr-code-scan me-2"></i> Scan Again
-                    </button>
+                <div
+                    style="width: 50px; height: 50px; background: #FFF3E0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                    <i class="bi bi-database-fill fs-4"></i>
                 </div>
             </div>
 
-            <div id="noMatchInterface" style="display: none;">
-                <div class="match-card text-center">
-                    <i class="bi bi-x-circle text-danger" style="font-size: 4rem;"></i>
-                    <h5 class="fw-bold mt-2">No Match Found</h5>
-                    <p class="small text-muted">This pet is not in the ecosystem.</p>
-                    <button class="btn btn-outline-dark w-100 rounded-pill mt-3" onclick="resetScan()">Try
-                        Again</button>
-                </div>
+            <h6 class="text-muted fw-bold ms-2 mb-3 small">RECENT ACTIVITY</h6>
+            <div id="petList" class="pb-5">
             </div>
-
         </div>
 
         <div id="register" class="view-section">
-            <h5 class="fw-bold text-center mb-3">Register Pet</h5>
-            <div class="card border-0 shadow-sm p-4" style="border-radius:20px;">
-                <input type="text" class="form-control mb-3" id="pName" placeholder="Pet Name">
-                <input type="text" class="form-control mb-3" id="pOwner" placeholder="Owner Name">
-                <div class="camera-frame mb-3" style="height: 200px;">
-                    <video id="regVideo" autoplay playsinline></video>
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 24px;">
+                <h5 class="fw-bold text-center mb-4 text-secondary">Add New Pet</h5>
+
+                <input type="text" id="pName" class="form-control-custom" placeholder="Pet Name">
+                <input type="text" id="oName" class="form-control-custom" placeholder="Owner Name">
+                <input type="text" id="oAddress" class="form-control-custom" placeholder="Address">
+
+                <div class="camera-container mb-4" style="height: 280px;">
+                    <video id="regVideo" autoplay playsinline
+                        style="width:100%; height:100%; object-fit:cover;"></video>
                 </div>
-                <button class="btn btn-dark w-100 mb-3" onclick="captureRegPhoto()">Capture Photo</button>
-                <button class="btn btn-danger w-100 py-3 rounded-4" style="background: var(--primary);"
-                    onclick="savePet()">Save Record</button>
+
+                <button class="btn btn-lg w-100 fw-bold text-white shadow-sm"
+                    style="background: var(--primary-dark); border-radius: 16px;" onclick="registerPet()">
+                    <i class="bi bi-check-lg me-2"></i> Save Record
+                </button>
+            </div>
+        </div>
+
+        <div id="scan" class="view-section">
+
+            <div id="cameraArea" class="text-center pt-2">
+                <div class="d-inline-block px-4 py-2 rounded-pill bg-white shadow-sm mb-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="spinner-grow spinner-grow-sm text-danger" role="status"></div>
+                        <span class="fw-bold small text-secondary">AI Detecting Face...</span>
+                    </div>
+                </div>
+
+                <div class="camera-container mx-auto" style="width: 100%; aspect-ratio: 1/1; max-width: 350px;">
+                    <video id="scanVideo" autoplay playsinline
+                        style="width:100%; height:100%; object-fit:cover;"></video>
+                    <div class="scan-overlay"></div>
+                    <div class="scan-line"></div>
+                </div>
+                <p class="text-muted mt-3 small">Please ensure good lighting for better accuracy.</p>
+            </div>
+
+            <div id="resultArea" style="display:none;">
+                <div class="card border-0 shadow-lg p-4 text-center" style="border-radius: 24px;">
+                    <div class="mb-3">
+                        <i class="bi bi-patch-check-fill text-success" style="font-size: 3.5rem;"></i>
+                        <h4 class="fw-bold mt-2">Identity Verified</h4>
+                    </div>
+
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <img id="liveImg" src="" class="result-img" style="border-color: #ff6b6b;">
+                            <small class="fw-bold text-danger d-block mt-2" style="font-size: 0.7rem;">LIVE
+                                CAPTURE</small>
+                        </div>
+                        <div class="col-6">
+                            <img id="dbImg" src="" class="result-img" style="border-color: #00b894;">
+                            <small class="fw-bold text-success d-block mt-2" style="font-size: 0.7rem;">DATABASE
+                                RECORD</small>
+                        </div>
+                    </div>
+
+                    <div class="text-start bg-light p-3 rounded-4 mb-3">
+                        <h3 class="fw-bold mb-1" id="resName">Pet Name</h3>
+                        <div class="d-flex align-items-center gap-2 text-muted mb-1">
+                            <i class="bi bi-person-circle"></i> <span id="resOwner">Owner</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-muted">
+                            <i class="bi bi-geo-alt-fill"></i> <span id="resAddress">Address</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-dark w-100 fw-bold py-3" style="border-radius: 16px;"
+                        onclick="resetScanUI()">
+                        Scan Another
+                    </button>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <div class="modern-navbar">
-        <div class="nav-btn active" onclick="switchView('home', this)"><i class="bi bi-grid-fill"></i></div>
-        <div class="scan-fab-container" onclick="handleCenterClick()">
-            <div class="scan-fab"><i class="bi bi-qr-code-scan"></i></div>
+    <nav class="glass-nav">
+        <div class="nav-item active" onclick="switchView('home', this)">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Home</span>
         </div>
-        <div class="nav-btn" onclick="switchView('register', this)"><i class="bi bi-plus-square-fill"></i></div>
-    </div>
+
+        <div class="scan-btn-wrapper" onclick="switchView('scan', null)">
+            <div class="scan-btn scan-pulse">
+                <i class="bi bi-qr-code-scan"></i>
+            </div>
+        </div>
+
+        <div class="nav-item" onclick="switchView('register', this)">
+            <i class="bi bi-plus-square-fill"></i>
+            <span>Add</span>
+        </div>
+    </nav>
 
     <script>
         let stream = null;
-        let regPhoto = null;
-        let currentView = 'home';
-
-        // --- NAVIGATION ---
-        function handleCenterClick() {
-            if (currentView === 'scan') runScanProcess();
-            else switchView('scan', document.querySelectorAll('.nav-btn')[1]);
-        }
+        let autoScanInterval = null;
+        let isScanning = false;
 
         function switchView(id, el) {
-            currentView = id;
+            // UI Toggles
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
             document.getElementById(id).classList.add('active');
 
-            if (id === 'home') document.querySelectorAll('.nav-btn')[0].classList.add('active');
-            if (id === 'register') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+            if (el) el.classList.add('active'); // Highlight Home/Add buttons
 
-            stopCam();
-            if (id === 'scan') {
-                resetScan(); // Reset UI when entering scan
-                initCam('scanVideo');
+            // Stop previous processes
+            stopAutoScan();
+            if (stream) stream.getTracks().forEach(t => t.stop());
+
+            // Logic per View
+            if (id === 'home') {
+                loadPets();
             }
-            if (id === 'register') initCam('regVideo');
-            if (id === 'home') loadHome();
+            else if (id === 'register') {
+                initCam('regVideo');
+            }
+            else if (id === 'scan') {
+                resetScanUI();
+            }
         }
 
         async function initCam(vidId) {
             const video = document.getElementById(vidId);
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                video.srcObject = stream;
-            } catch (err) { console.log("Cam Error"); }
-        }
-
-        function stopCam() { if (stream) stream.getTracks().forEach(t => t.stop()); }
-
-        // --- REGISTRATION ---
-        function captureRegPhoto() {
-            const video = document.getElementById('regVideo');
-            const canvas = document.createElement('canvas');
-            canvas.width = 300; canvas.height = 300;
-            canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
-            regPhoto = canvas.toDataURL('image/jpeg', 0.8);
-            alert("Photo Captured!");
-        }
-
-        function savePet() {
-            const name = document.getElementById('pName').value;
-            const owner = document.getElementById('pOwner').value;
-            if (!name || !owner || !regPhoto) return alert("Missing info!");
-
-            const pet = { id: Date.now(), name, owner, photo: regPhoto };
-            let data = JSON.parse(localStorage.getItem('sp_db')) || [];
-            data.push(pet);
-            localStorage.setItem('sp_db', JSON.stringify(data));
-
-            alert("Saved!");
-            switchView('home');
-        }
-
-        function loadHome() {
-            const data = JSON.parse(localStorage.getItem('sp_db')) || [];
-            document.getElementById('totalCount').innerText = data.length;
-            const list = document.getElementById('recentList');
-            list.innerHTML = "";
-            data.reverse().forEach(p => {
-                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm d-flex flex-row align-items-center"><img src="${p.photo}" style="width:50px; height:50px; border-radius:10px; margin-right:15px;"><div><strong>${p.name}</strong><br><small>${p.owner}</small></div></div>`;
-            });
-        }
-
-        function clearData() {
-            if (confirm("Delete All Records?")) {
-                localStorage.removeItem('sp_db');
-                loadHome();
+            if (video) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    video.srcObject = stream;
+                } catch (e) { console.log(e); }
             }
         }
 
-        // --- NEW SCANNING LOGIC (SIDE BY SIDE) ---
-        function runScanProcess() {
-            const data = JSON.parse(localStorage.getItem('sp_db')) || [];
-            const line = document.getElementById('scanLine');
-            const video = document.getElementById('scanVideo');
+        // --- 1. LOAD DATA ---
+        async function loadPets() {
+            try {
+                const res = await fetch('/get_pets');
+                const pets = await res.json();
+                const list = document.getElementById('petList');
+                document.getElementById('countBadge').innerText = pets.length;
+                list.innerHTML = "";
 
-            // 1. Capture Current Frame (Live Scan)
+                if (pets.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-center mt-5 opacity-50">
+                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100" style="filter: grayscale(100%);">
+                            <p class="mt-3 fw-bold">No records found</p>
+                        </div>`;
+                    return;
+                }
+
+                pets.forEach(p => {
+                    list.innerHTML += `
+                        <div class="pet-card">
+                            <img src="${p.photo}" class="pet-img">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0 text-dark">${p.name}</h6>
+                                <small class="text-muted" style="font-size: 0.75rem;">Owner: ${p.owner}</small>
+                            </div>
+                            <button class="btn btn-light text-danger border-0 rounded-circle" style="width:40px; height:40px;" onclick="deletePet(${p.id}, '${p.name}')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            } catch (e) { }
+        }
+
+        async function deletePet(id, name) {
+            if (confirm(`Delete record for ${name}?`)) {
+                const res = await fetch('/delete_pet/' + id, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.status === 'success') loadPets();
+            }
+        }
+
+        // --- 2. REGISTER ---
+        async function registerPet() {
+            const name = document.getElementById('pName').value;
+            const owner = document.getElementById('oName').value;
+            const address = document.getElementById('oAddress').value;
+            const video = document.getElementById('regVideo');
+
+            if (!name) return alert("Please enter pet name");
+
             const canvas = document.createElement('canvas');
             canvas.width = 300; canvas.height = 300;
             canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
-            const liveScanImg = canvas.toDataURL('image/jpeg');
+            const img = canvas.toDataURL('image/jpeg');
 
-            line.style.display = "block";
-
-            setTimeout(() => {
-                // 2. Hide Camera, Stop Stream
-                line.style.display = "none";
-                document.getElementById('cameraInterface').style.display = 'none';
-                stopCam();
-
-                if (data.length === 0) {
-                    document.getElementById('noMatchInterface').style.display = 'block';
-                } else {
-                    // 3. Show Comparison
-                    const match = data[data.length - 1]; // Simulate finding the last one
-
-                    document.getElementById('resultInterface').style.display = 'block';
-
-                    // Set Images
-                    document.getElementById('scannedImg').src = liveScanImg; // Left: What you just scanned
-                    document.getElementById('dbImg').src = match.photo;      // Right: What is in database
-
-                    // Set Text
-                    document.getElementById('resName').innerText = match.name;
-                    document.getElementById('resOwner').innerText = "Owner: " + match.owner;
-                }
-            }, 1500);
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, owner, address, image: img })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (data.status === 'success') switchView('home', document.querySelectorAll('.nav-item')[0]);
         }
 
-        function resetScan() {
-            document.getElementById('resultInterface').style.display = 'none';
-            document.getElementById('noMatchInterface').style.display = 'none';
-            document.getElementById('cameraInterface').style.display = 'block';
+        // --- 3. AUTO SCAN LOGIC ---
+        function startAutoScan() {
+            if (autoScanInterval) clearInterval(autoScanInterval);
+            isScanning = true;
+            autoScanInterval = setInterval(async () => {
+                if (!isScanning) return;
+                const video = document.getElementById('scanVideo');
+                if (!video || video.paused || video.ended) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 300; canvas.height = 300;
+                canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
+                const img = canvas.toDataURL('image/jpeg');
+
+                try {
+                    const res = await fetch('/scan_face', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: img })
+                    });
+                    const result = await res.json();
+
+                    if (result.match) {
+                        stopAutoScan();
+                        showResult(result.data, img);
+                    }
+                } catch (e) { }
+            }, 1000); // Check every 1 second
+        }
+
+        function stopAutoScan() {
+            isScanning = false;
+            if (autoScanInterval) clearInterval(autoScanInterval);
+        }
+
+        function showResult(data, liveImg) {
+            document.getElementById('cameraArea').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('liveImg').src = liveImg;
+            document.getElementById('dbImg').src = data.photo;
+            document.getElementById('resName').innerText = data.name;
+            document.getElementById('resOwner').innerText = data.owner;
+            document.getElementById('resAddress').innerText = data.address;
+        }
+
+        function resetScanUI() {
+            document.getElementById('resultArea').style.display = 'none';
+            document.getElementById('cameraArea').style.display = 'block';
             initCam('scanVideo');
+            startAutoScan();
         }
 
-        window.onload = loadHome;
+        window.onload = () => switchView('home', document.querySelectorAll('.nav-item')[0]);
     </script>
 </body>
 
