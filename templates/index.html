@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart-Paw MarSU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #800024;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            padding-bottom: 100px;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary), #a8284a);
+            color: white;
+            padding: 25px 20px 35px;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+        }
+
+        /* Navbar */
+        .modern-navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            height: 80px;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            color: #ccc;
+            font-size: 1.8rem;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .scan-fab-container {
+            position: relative;
+            top: -35px;
+        }
+
+        .scan-fab {
+            width: 75px;
+            height: 75px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2.2rem;
+            border: 5px solid var(--bg-light);
+            box-shadow: 0 10px 25px rgba(128, 0, 36, 0.4);
+        }
+
+        /* Camera & Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .camera-frame {
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: #000;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 3px;
+            background: #00ff00;
+            box-shadow: 0 0 15px #0f0;
+            animation: scanMove 2s infinite linear;
+            display: none;
+        }
+
+        @keyframes scanMove {
+            0% {
+                top: 0;
+            }
+
+            100% {
+                top: 100%;
+            }
+        }
+
+        /* Comparison Styles */
+        .img-compare {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 2px solid #ddd;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-header text-center">
+        <h4 class="fw-bold mb-0">Smart-Paw</h4>
+        <small>Santa Cruz, Marinduque</small>
+        <div style="position: absolute; top: 20px; right: 20px;" onclick="clearData()">
+            <i class="bi bi-trash3-fill text-white"></i>
+        </div>
+    </div>
+
+    <div class="container py-4">
+
+        <div id="home" class="view-section active">
+            <div class="card border-0 shadow-sm p-4 text-center mb-3" style="border-radius:20px;">
+                <h1 class="fw-bold text-primary mb-0" id="totalCount">0</h1>
+                <small class="text-muted">Registered Pets</small>
+            </div>
+            <h6 class="fw-bold text-muted ps-2">DATABASE</h6>
+            <div id="recentList"></div>
+        </div>
+
+        <div id="scan" class="view-section text-center pt-2">
+
+            <div id="cameraInterface">
+                <h5 class="fw-bold">AI Scan</h5>
+                <p class="small text-muted mb-3">Align pet face within frame</p>
+                <div class="camera-frame mb-4" style="aspect-ratio: 1/1;">
+                    <video id="scanVideo" autoplay playsinline></video>
+                    <div class="scan-line" id="scanLine"></div>
+                </div>
+                <p class="text-muted small" id="scanMsg">Tap Center Button to Identify</p>
+            </div>
+
+            <div id="resultInterface" style="display: none;">
+                <div class="match-card">
+                    <div class="alert alert-success py-1 px-2 d-inline-block rounded-pill mb-3">
+                        <small><i class="bi bi-patch-check-fill me-1"></i> 94% Match Found</small>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <img id="scannedImg" src="" class="img-compare" style="border-color: #ff9999;">
+                            <small class="text-muted fw-bold" style="font-size: 0.7rem;">LIVE SCAN</small>
+                        </div>
+                        <div class="col-6">
+                            <img id="dbImg" src="" class="img-compare" style="border-color: #99ff99;">
+                            <small class="text-muted fw-bold" style="font-size: 0.7rem;">DATABASE</small>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mb-0" id="resName">Bantay</h4>
+                    <p class="text-muted mb-3" id="resOwner">Owner: Juan</p>
+
+                    <button class="btn btn-primary w-100 rounded-pill py-2" onclick="resetScan()">
+                        <i class="bi bi-qr-code-scan me-2"></i> Scan Again
+                    </button>
+                </div>
+            </div>
+
+            <div id="noMatchInterface" style="display: none;">
+                <div class="match-card text-center">
+                    <i class="bi bi-x-circle text-danger" style="font-size: 4rem;"></i>
+                    <h5 class="fw-bold mt-2">No Match Found</h5>
+                    <p class="small text-muted">This pet is not in the ecosystem.</p>
+                    <button class="btn btn-outline-dark w-100 rounded-pill mt-3" onclick="resetScan()">Try
+                        Again</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="register" class="view-section">
+            <h5 class="fw-bold text-center mb-3">Register Pet</h5>
+            <div class="card border-0 shadow-sm p-4" style="border-radius:20px;">
+                <input type="text" class="form-control mb-3" id="pName" placeholder="Pet Name">
+                <input type="text" class="form-control mb-3" id="pOwner" placeholder="Owner Name">
+                <div class="camera-frame mb-3" style="height: 200px;">
+                    <video id="regVideo" autoplay playsinline></video>
+                </div>
+                <button class="btn btn-dark w-100 mb-3" onclick="captureRegPhoto()">Capture Photo</button>
+                <button class="btn btn-danger w-100 py-3 rounded-4" style="background: var(--primary);"
+                    onclick="savePet()">Save Record</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modern-navbar">
+        <div class="nav-btn active" onclick="switchView('home', this)"><i class="bi bi-grid-fill"></i></div>
+        <div class="scan-fab-container" onclick="handleCenterClick()">
+            <div class="scan-fab"><i class="bi bi-qr-code-scan"></i></div>
+        </div>
+        <div class="nav-btn" onclick="switchView('register', this)"><i class="bi bi-plus-square-fill"></i></div>
+    </div>
+
+    <script>
+        let stream = null;
+        let regPhoto = null;
+        let currentView = 'home';
+
+        // --- NAVIGATION ---
+        function handleCenterClick() {
+            if (currentView === 'scan') runScanProcess();
+            else switchView('scan', document.querySelectorAll('.nav-btn')[1]);
+        }
+
+        function switchView(id, el) {
+            currentView = id;
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+
+            if (id === 'home') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            if (id === 'register') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+
+            stopCam();
+            if (id === 'scan') {
+                resetScan(); // Reset UI when entering scan
+                initCam('scanVideo');
+            }
+            if (id === 'register') initCam('regVideo');
+            if (id === 'home') loadHome();
+        }
+
+        async function initCam(vidId) {
+            const video = document.getElementById(vidId);
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+            } catch (err) { console.log("Cam Error"); }
+        }
+
+        function stopCam() { if (stream) stream.getTracks().forEach(t => t.stop()); }
+
+        // --- REGISTRATION ---
+        function captureRegPhoto() {
+            const video = document.getElementById('regVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = 300; canvas.height = 300;
+            canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
+            regPhoto = canvas.toDataURL('image/jpeg', 0.8);
+            alert("Photo Captured!");
+        }
+
+        function savePet() {
+            const name = document.getElementById('pName').value;
+            const owner = document.getElementById('pOwner').value;
+            if (!name || !owner || !regPhoto) return alert("Missing info!");
+
+            const pet = { id: Date.now(), name, owner, photo: regPhoto };
+            let data = JSON.parse(localStorage.getItem('sp_db')) || [];
+            data.push(pet);
+            localStorage.setItem('sp_db', JSON.stringify(data));
+
+            alert("Saved!");
+            switchView('home');
+        }
+
+        function loadHome() {
+            const data = JSON.parse(localStorage.getItem('sp_db')) || [];
+            document.getElementById('totalCount').innerText = data.length;
+            const list = document.getElementById('recentList');
+            list.innerHTML = "";
+            data.reverse().forEach(p => {
+                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm d-flex flex-row align-items-center"><img src="${p.photo}" style="width:50px; height:50px; border-radius:10px; margin-right:15px;"><div><strong>${p.name}</strong><br><small>${p.owner}</small></div></div>`;
+            });
+        }
+
+        function clearData() {
+            if (confirm("Delete All Records?")) {
+                localStorage.removeItem('sp_db');
+                loadHome();
+            }
+        }
+
+        // --- NEW SCANNING LOGIC (SIDE BY SIDE) ---
+        function runScanProcess() {
+            const data = JSON.parse(localStorage.getItem('sp_db')) || [];
+            const line = document.getElementById('scanLine');
+            const video = document.getElementById('scanVideo');
+
+            // 1. Capture Current Frame (Live Scan)
+            const canvas = document.createElement('canvas');
+            canvas.width = 300; canvas.height = 300;
+            canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
+            const liveScanImg = canvas.toDataURL('image/jpeg');
+
+            line.style.display = "block";
+
+            setTimeout(() => {
+                // 2. Hide Camera, Stop Stream
+                line.style.display = "none";
+                document.getElementById('cameraInterface').style.display = 'none';
+                stopCam();
+
+                if (data.length === 0) {
+                    document.getElementById('noMatchInterface').style.display = 'block';
+                } else {
+                    // 3. Show Comparison
+                    const match = data[data.length - 1]; // Simulate finding the last one
+
+                    document.getElementById('resultInterface').style.display = 'block';
+
+                    // Set Images
+                    document.getElementById('scannedImg').src = liveScanImg; // Left: What you just scanned
+                    document.getElementById('dbImg').src = match.photo;      // Right: What is in database
+
+                    // Set Text
+                    document.getElementById('resName').innerText = match.name;
+                    document.getElementById('resOwner').innerText = "Owner: " + match.owner;
+                }
+            }, 1500);
+        }
+
+        function resetScan() {
+            document.getElementById('resultInterface').style.display = 'none';
+            document.getElementById('noMatchInterface').style.display = 'none';
+            document.getElementById('cameraInterface').style.display = 'block';
+            initCam('scanVideo');
+        }
+
+        window.onload = loadHome;
+    </script>
+</body>
+
+</html>
