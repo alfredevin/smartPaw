@@ -571,42 +571,61 @@
     </div>
 
     <nav class="glass-nav">
-        <div class="nav-item active" onclick="switchView('home', this)">
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Home</span>
+        <div class="nav-item active" onclick="switchView('home', this)"><i class="bi bi-grid-fill"></i><span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchView('health', this)"><i
+                class="bi bi-heart-pulse-fill"></i><span>Health</span></div>
+        <div class="scan-btn-wrapper" onclick="switchView('scan', null)">
+            <div class="scan-btn scan-pulse"><i class="bi bi-qr-code-scan"></i></div>
+        </div>
+        <div class="nav-item" onclick="switchView('register', this)"><i
+                class="bi bi-plus-square-fill"></i><span>Add</span></div>
+    </nav>
+    <div id="health" class="view-section">
+        <div id="healthCameraArea">
+            <h5 class="fw-bold text-center mb-3">AI Health Scanner</h5>
+            <div class="camera-container mx-auto mb-3" style="width: 100%; aspect-ratio: 1/1; max-width: 350px;">
+                <video id="healthVideo" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                <div class="scan-line" style="background: #FFC107; box-shadow: 0 0 15px #FFC107;"></div>
+            </div>
+            <button class="btn btn-warning w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="processHealthScan()">
+                <i class="bi bi-heart-pulse-fill me-2"></i> Analyze Pet Health
+            </button>
         </div>
 
-        <div class="scan-btn-wrapper" onclick="switchView('scan', null)">
-            <div class="scan-btn scan-pulse">
-                <i class="bi bi-qr-code-scan"></i>
+        <div id="healthResultArea" style="display:none;">
+            <div class="card border-0 shadow-lg p-4 rounded-4 text-center">
+                <h5 class="fw-bold mb-3">Health Assessment</h5>
+                <div class="bg-light p-3 rounded-4 mb-3 text-start border-start border-4 border-warning">
+                    <h4 id="detectedCondition" class="fw-bold text-danger mb-1">Condition</h4>
+                    <small class="text-muted d-block mb-2">Confidence: <span id="healthConfidence">0</span>%</small>
+                    <p class="mb-1"><strong>Symptoms:</strong> <span id="resSymptoms">...</span></p>
+                    <hr>
+                    <p class="mb-0 text-success"><strong>Possible Remedy:</strong> <span id="resRemedy">...</span></p>
+                </div>
+                <button class="btn btn-dark w-100 rounded-pill py-2" onclick="resetHealthUI()">Scan Again</button>
             </div>
         </div>
-
-        <div class="nav-item" onclick="switchView('register', this)">
-            <i class="bi bi-plus-square-fill"></i>
-            <span>Add</span>
-        </div>
-    </nav>
-
+    </div>
     <script>
         let stream = null;
         let autoScanInterval = null;
         let isScanning = false;
 
+        // --- 1. NAVIGATION & VIEW CONTROL ---
         function switchView(id, el) {
-            // UI Toggles
+            // UI Toggles: Remove 'active' from all, add to selected
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
             document.getElementById(id).classList.add('active');
+            if (el) el.classList.add('active');
 
-            if (el) el.classList.add('active'); // Highlight Home/Add buttons
-
-            // Stop previous processes
+            // Clean up: Stop camera and scanning loops when switching tabs
             stopAutoScan();
             if (stream) stream.getTracks().forEach(t => t.stop());
 
-            // Logic per View
+            // Initialize logic based on which tab is opened
             if (id === 'home') {
                 loadPets();
             }
@@ -616,32 +635,43 @@
             else if (id === 'scan') {
                 resetScanUI();
             }
+            else if (id === 'health') {
+                initCam('healthVideo');
+            }
         }
 
+        // --- 2. CAMERA INITIALIZATION ---
         async function initCam(vidId) {
             const video = document.getElementById(vidId);
             if (video) {
                 try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
                     video.srcObject = stream;
-                } catch (e) { console.log(e); }
+                } catch (e) {
+                    console.error("Camera Error:", e);
+                    alert("Could not access camera. Please check permissions.");
+                }
             }
         }
 
-        // --- 1. LOAD DATA ---
+        // --- 3. DASHBOARD DATA (CRUD) ---
         async function loadPets() {
             try {
                 const res = await fetch('/get_pets');
                 const pets = await res.json();
                 const list = document.getElementById('petList');
-                document.getElementById('countBadge').innerText = pets.length;
+                const countBadge = document.getElementById('countBadge');
+
+                if (countBadge) countBadge.innerText = pets.length;
                 list.innerHTML = "";
 
                 if (pets.length === 0) {
                     list.innerHTML = `
                         <div class="text-center mt-5 opacity-50">
-                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100" style="filter: grayscale(100%);">
-                            <p class="mt-3 fw-bold">No records found</p>
+                            <i class="bi bi-folder-x fs-1"></i>
+                            <p class="mt-3 fw-bold">No pet records found</p>
                         </div>`;
                     return;
                 }
@@ -660,7 +690,7 @@
                         </div>
                     `;
                 });
-            } catch (e) { }
+            } catch (e) { console.error("Load Error:", e); }
         }
 
         async function deletePet(id, name) {
@@ -671,31 +701,90 @@
             }
         }
 
-        // --- 2. REGISTER ---
+        // --- 4. PET REGISTRATION ---
         async function registerPet() {
             const name = document.getElementById('pName').value;
             const owner = document.getElementById('oName').value;
             const address = document.getElementById('oAddress').value;
             const video = document.getElementById('regVideo');
 
-            if (!name) return alert("Please enter pet name");
+            if (!name || !owner) return alert("Please fill in Pet and Owner names.");
 
             const canvas = document.createElement('canvas');
-            canvas.width = 300; canvas.height = 300;
-            canvas.getContext('2d').drawImage(video, 0, 0, 300, 300);
+            canvas.width = 400; canvas.height = 400;
+            canvas.getContext('2d').drawImage(video, 0, 0, 400, 400);
             const img = canvas.toDataURL('image/jpeg');
 
-            const res = await fetch('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, owner, address, image: img })
-            });
-            const data = await res.json();
-            alert(data.message);
-            if (data.status === 'success') switchView('home', document.querySelectorAll('.nav-item')[0]);
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, owner, address, image: img })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.status === 'success') switchView('home', document.querySelectorAll('.nav-item')[0]);
+            } catch (e) { alert("Registration failed."); }
         }
 
-        // --- 3. AUTO SCAN LOGIC ---
+        // --- 5. AI HEALTH SCAN (GEMINI INTEGRATION) ---
+        async function processHealthScan() {
+            const video = document.getElementById('healthVideo');
+            const btn = document.querySelector('#health button');
+            const statusMsg = document.getElementById('healthStatusMsg'); // Ensure this ID exists in HTML
+
+            // UI Feedback: Show Loading
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> AI Analyzing...';
+            }
+            if (statusMsg) statusMsg.innerText = "Gemini AI is reading image data...";
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            canvas.getContext('2d').drawImage(video, 0, 0, 512, 512);
+            const img = canvas.toDataURL('image/jpeg');
+
+            try {
+                const res = await fetch('/health_scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: img })
+                });
+                const result = await res.json();
+
+                if (result.status === "success") {
+                    // Switch to Result View
+                    document.getElementById('healthCameraArea').style.display = 'none';
+                    document.getElementById('healthResultArea').style.display = 'block';
+
+                    // Populate AI results
+                    document.getElementById('detectedCondition').innerText = result.condition;
+                    document.getElementById('healthConfidence').innerText = result.confidence;
+                    document.getElementById('resSymptoms').innerText = result.symptoms;
+                    document.getElementById('resRemedy').innerText = result.remedy;
+                } else {
+                    alert("AI Analysis Error: " + result.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Server Error. Check your internet or app.py console.");
+            } finally {
+                // Reset Button
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-heart-pulse-fill me-2"></i> Analyze Pet Health';
+                }
+            }
+        }
+
+        function resetHealthUI() {
+            document.getElementById('healthResultArea').style.display = 'none';
+            document.getElementById('healthCameraArea').style.display = 'block';
+            initCam('healthVideo');
+        }
+
+        // --- 6. FACE VERIFICATION SCAN ---
         function startAutoScan() {
             if (autoScanInterval) clearInterval(autoScanInterval);
             isScanning = true;
@@ -722,7 +811,7 @@
                         showResult(result.data, img);
                     }
                 } catch (e) { }
-            }, 1000); // Check every 1 second
+            }, 1000);
         }
 
         function stopAutoScan() {
@@ -736,8 +825,10 @@
             document.getElementById('liveImg').src = liveImg;
             document.getElementById('dbImg').src = data.photo;
             document.getElementById('resName').innerText = data.name;
-            document.getElementById('resOwner').innerText = data.owner;
-            document.getElementById('resAddress').innerText = data.address;
+            document.getElementById('resOwner').innerText = "Owner: " + data.owner;
+            // Note: resAddress is in your HTML, let's update it too
+            const addr = document.getElementById('resAddress');
+            if (addr) addr.innerText = data.address || "Address Record Found";
         }
 
         function resetScanUI() {
@@ -747,6 +838,7 @@
             startAutoScan();
         }
 
+        // Initialize Home on load
         window.onload = () => switchView('home', document.querySelectorAll('.nav-item')[0]);
     </script>
 </body>
